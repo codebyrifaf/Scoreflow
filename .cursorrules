@@ -1,0 +1,54 @@
+# ScoreFlow Cursor Rules
+
+## Workflow
+1. Work in ONE phase at a time. Never jump between phases.
+2. Always read BUILD_SPEC.md before starting a new file.
+3. Stop and ask for confirmation before moving to the next phase.
+4. Commit after each working sub-feature. Don't batch huge commits.
+5. When unsure, ask before proceeding.
+
+## Code quality
+- TypeScript strict mode only. No `any` types.
+- All API routes must validate inputs with Zod.
+- All forms use react-hook-form + zod resolver.
+- Use shadcn/ui components. Don't rewrite existing UI primitives.
+- All client components must be marked 'use client' explicitly.
+- Tailwind utility classes only. No CSS modules or inline styles.
+
+## Multi-tenancy invariants (NEVER violate)
+- Every table except `users`, `agencies`, `subscription_plans` has `agency_id` column.
+- Every database query from an authenticated user must filter by `agency_id`.
+- Never trust client-supplied `agencyId` or `businessId` — always derive from session.
+- Subdomain determines tenant; don't trust request body to determine tenant.
+- Platform admin users: `agency_id IS NULL`, `role = 'platform_admin'`.
+- All other users: `agency_id IS NOT NULL`.
+- Never query across agencies in one request (except as platform admin).
+
+## Security
+- Supabase service role key NEVER exposed to client.
+- All tables must have RLS enabled before they're used.
+- POS access tokens encrypted at rest.
+- Stripe webhooks must verify signature.
+- Rate limit all public endpoints and auth endpoints.
+
+## When adding a new feature
+1. Update the Drizzle schema first.
+2. Generate + run migration.
+3. Write RLS policies for any new table.
+4. Build the API route with Zod validation.
+5. Build the UI last.
+
+## File conventions
+- Route groups use parentheses: `(marketing)`, `(agency)`, etc.
+- Server components by default; client components only when interactivity needed.
+- API routes colocated under `src/app/api/`.
+- Database queries live in `src/lib/db/queries/` (not in components).
+- Shared types in `src/types/`.
+
+## Anti-patterns to avoid
+- ❌ Direct Supabase queries from client components (use API routes or Server Actions).
+- ❌ Hardcoded agency IDs or business IDs.
+- ❌ Skipping RLS "temporarily for dev."
+- ❌ Using `dangerouslySetInnerHTML`.
+- ❌ Storing secrets in NEXT_PUBLIC_* variables.
+- ❌ Building multiple phases at once.
