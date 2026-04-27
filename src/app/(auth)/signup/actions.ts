@@ -40,5 +40,5 @@ export async function signUp(
     return { error: error.message };
   }
 
-  redirect('/auth/check-email');
+  redirect('/check-email');
 }

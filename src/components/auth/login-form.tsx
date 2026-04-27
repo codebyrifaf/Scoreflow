@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,9 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') ?? '';
+
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -38,6 +42,7 @@ export default function LoginForm() {
     const fd = new FormData();
     fd.set('email', values.email);
     fd.set('password', values.password);
+    if (redirectTo) fd.set('redirectTo', redirectTo);
 
     const res = await signInWithPassword(null, fd);
     setIsLoading(false);
