@@ -27,8 +27,6 @@ function isAuthOnlyPath(pathname: string): boolean {
 }
 
 export async function proxy(request: NextRequest) {
-  console.log('[PROXY]', request.nextUrl.pathname);
-
   const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 

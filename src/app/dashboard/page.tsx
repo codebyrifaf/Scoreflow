@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -6,10 +7,8 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Note: proxy.ts already redirects unauthenticated users to /login.
-  // This is a defense-in-depth check; if proxy somehow fails, we still don't leak.
   if (!user) {
-    return null;
+    redirect('/login');
   }
 
   return (

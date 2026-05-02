@@ -10,10 +10,10 @@ interface PlatformShellProps {
 }
 
 const NAV_ITEMS = [
-  { href: '/platform/overview', label: 'Overview', icon: '📊' },
-  { href: '/platform/agencies', label: 'Agencies', icon: '🏢' },
-  { href: '/platform/analytics', label: 'Platform Analytics', icon: '📈' },
-  { href: '/platform/system', label: 'System Status', icon: '⚙️' },
+  { href: '/platform/overview', label: 'Overview' },
+  { href: '/platform/agencies', label: 'Agencies' },
+  { href: '/platform/analytics', label: 'Platform Analytics' },
+  { href: '/platform/system', label: 'System Status' },
 ];
 
 export default function PlatformShell({ user, children }: PlatformShellProps) {
@@ -53,14 +53,13 @@ export default function PlatformShell({ user, children }: PlatformShellProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 rounded px-3 py-2 text-sm transition ${
+                  className={`flex items-center rounded px-3 py-2 text-sm transition ${
                     isActive
                       ? 'bg-indigo-50 font-medium text-indigo-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
+                  {item.label}
                 </Link>
               );
             })}
