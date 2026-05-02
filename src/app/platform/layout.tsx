@@ -1,8 +1,5 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { requirePlatformAdmin } from '@/lib/auth/require-platform-admin';
 import type { ReactNode } from 'react';
 import PlatformShell from '@/components/platform/platform-shell';
 
@@ -11,24 +8,25 @@ export default async function PlatformLayout({
 }: {
   children: ReactNode;
 }) {
+  const user = await requirePlatformAdmin();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect('/login?redirectTo=/platform/overview');
+  const { data: profile, error: profileError } = await supabase
+    .from('users')
+    .select('role, full_name, email')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    throw new Error(profileError.message);
   }
 
-  const [profile] = await db
-    .select({ role: users.role, fullName: users.fullName, email: users.email })
-    .from(users)
-    .where(eq(users.id, user.id))
-    .limit(1);
+  const displayName = profile?.full_name ?? user.user_metadata?.full_name ?? null;
+  const displayEmail = profile?.email ?? user.email ?? 'unknown';
 
-  if (!profile || profile.role !== 'platform_admin') {
-    redirect('/dashboard');
-  }
-
-  return <PlatformShell user={profile}>{children}</PlatformShell>;
+  return (
+    <PlatformShell user={{ fullName: displayName, email: displayEmail }}>
+      {children}
+    </PlatformShell>
+  );
 }
